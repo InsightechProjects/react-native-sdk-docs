@@ -64,10 +64,10 @@ export default function App() {
 ```
 
 :::tip Where to find your account string
-Log in to the [Insightech dashboard](https://app.insightech.com). Your profile ID and server ID are in the tracking code snippet, formatted as `profileId:serverId`.
+Log in to the [Insightech dashboard](https://cloud.insightech.com). Your profile ID and server ID are in the tracking code snippet, formatted as `profileId:serverId`.
 :::
 
-That's it. The SDK starts tracking immediately. Open your app, navigate a few screens, then check the [Replay List](https://app.insightech.com) in the dashboard.
+That's it. The SDK starts tracking immediately. Open your app, navigate a few screens, then check the [Replay List](https://cloud.insightech.com) in the dashboard.
 
 ## Development Mode
 

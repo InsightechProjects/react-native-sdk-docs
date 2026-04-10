@@ -80,7 +80,7 @@ const config: Config = {
           title: 'Insightech',
           items: [
             { label: 'Website', href: 'https://www.insightech.com' },
-            { label: 'Dashboard', href: 'https://app.insightech.com' },
+            { label: 'Dashboard', href: 'https://cloud.insightech.com' },
             { label: 'Support', href: 'https://support.insightech.com' },
           ],
         },

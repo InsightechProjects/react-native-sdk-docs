@@ -10,7 +10,7 @@ title: Troubleshooting
 1. **Check devMode logs:** Set `devMode: true` and look for `[Insightech:Transport]` logs in Metro. You should see `Response: 200` for successful sends.
 2. **Verify account string:** Ensure `account` is formatted as `profileId:serverId` (e.g., `'080360e96:us-0-api'`).
 3. **Check date filter:** The dashboard defaults to "Yesterday". Switch to "Today" to see current sessions.
-4. **Check the dashboard URL:** Ensure you're viewing the correct profile at `https://app.insightech.com/profile/{profileId}/replay/list`.
+4. **Check the dashboard URL:** Ensure you're viewing the correct profile at `https://cloud.insightech.com/profile/{profileId}/replay/list`.
 
 ## Session replay shows empty or broken layout
 

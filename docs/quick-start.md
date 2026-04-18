@@ -14,10 +14,18 @@ module.exports = function (api) {
   api.cache(true);
   return {
     presets: ['babel-preset-expo'], // or 'module:metro-react-native-babel-preset'
-    plugins: ['@insightech/babel-plugin-react-native'],
+    plugins: ['@insightech/react-native/babel-plugin'],
   };
 };
 ```
+
+:::note
+The plugin is **bundled inside `@insightech/react-native`**. There is no separate `@insightech/babel-plugin-react-native` npm package — use the path above, not a standalone install.
+:::
+
+:::note Expo users
+Expo apps don't ship with a `babel.config.js` by default. Create the file at your project root with the contents above; Metro will pick it up automatically on the next start.
+:::
 
 The plugin automatically instruments interactive components at build time. Your app code stays 100% standard React Native — no imports to change, no components to swap.
 
@@ -39,6 +47,10 @@ After adding or changing the Babel plugin config, clear the Metro cache:
 :::
 
 ## Step 2: Wrap Your App
+
+Pick the section that matches your navigation setup.
+
+### Option A — React Navigation
 
 ```tsx title="App.tsx"
 import { NavigationContainer, useNavigationContainerRef } from '@react-navigation/native';
@@ -63,11 +75,52 @@ export default function App() {
 }
 ```
 
+### Option B — Expo Router
+
+Expo Router manages `NavigationContainer` internally, so there's no ref to pass. Use the bundled `useInsightechExpoRouter` hook instead:
+
+```tsx title="app/_layout.tsx"
+import { Stack } from 'expo-router';
+import {
+  InsightechProvider,
+  useInsightech,
+} from '@insightech/react-native';
+import { useInsightechExpoRouter } from '@insightech/react-native/expo-router';
+
+function ScreenTracker() {
+  const sdk = useInsightech();
+  useInsightechExpoRouter(sdk);
+  return null;
+}
+
+export default function RootLayout() {
+  return (
+    <InsightechProvider
+      config={{
+        account: 'YOUR_PROFILE_ID:YOUR_SERVER_ID',
+        appName: 'MyApp',
+      }}
+    >
+      <ScreenTracker />
+      <Stack />
+    </InsightechProvider>
+  );
+}
+```
+
 :::tip Where to find your account string
-Log in to the [Insightech dashboard](https://cloud.insightech.com). Your profile ID and server ID are in the tracking code snippet, formatted as `profileId:serverId`.
+Your account string is formatted as `profileId:serverId`. Log in to the [Insightech dashboard](https://cloud.insightech.com), open your profile's tracking code snippet, and copy both values from the JavaScript installation snippet. (There is no separate "API Keys" page.)
 :::
 
-That's it. The SDK starts tracking immediately. Open your app, navigate a few screens, then check the [Replay List](https://cloud.insightech.com) in the dashboard.
+:::note Web platform
+The SDK is optimised for iOS and Android native builds. If you also run the same Expo project on web, you may see harmless `TrackedScrollView` warnings in development — web replay is not supported.
+:::
+
+That's it. The SDK starts tracking as soon as a screen is registered. Open your app, navigate a few screens, then check the [Replay List](https://cloud.insightech.com) in the dashboard.
+
+:::caution No screen tracked
+If you see the console warning `[Insightech] No screen tracked after 10s`, the SDK has no URL to attach events to and is holding everything in memory. Double-check that `attachNavigation()` or `useInsightechExpoRouter()` is wired up in your root component.
+:::
 
 ## Development Mode
 

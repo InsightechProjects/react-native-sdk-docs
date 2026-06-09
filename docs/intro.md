@@ -26,7 +26,11 @@ The SDK sends data in the exact same format as the Insightech web JavaScript SDK
 - `@react-native-async-storage/async-storage` >= 1.17
 - Optional: `@react-navigation/native` for automatic screen tracking
 
-**Tested with:** React Native 0.68 through 0.76, React 17 and 18, both Paper and Fabric renderers.
+**Tested with:** React Native 0.68 through 0.81, React 17 through 19, both Paper and Fabric renderers. React Native 0.76–0.81 are verified on every push by the SDK's CI matrix (TypeScript build + full unit-test suite, against each version's bundled types and its matching React 18/19). On-device smoke testing across 0.77–0.81 is in progress.
+
+:::note New Architecture
+The SDK runs on both the legacy (Paper) and New Architecture (Fabric/Bridgeless) renderers and accesses React internals defensively, with a graceful fallback if the fiber layout changes on a newer release. The CI matrix exercises the default architecture shipped with each RN version.
+:::
 
 ## Next Steps
 

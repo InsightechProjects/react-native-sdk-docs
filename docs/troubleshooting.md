@@ -25,10 +25,25 @@ title: Troubleshooting
 2. **Clear Metro cache:** After changing Babel config, clear the cache:
    - Expo: `npx expo start --clear`
    - RN CLI: `npx react-native start --reset-cache`
-3. **Check exclusions:** Make sure the component isn't in the `exclude` list.
+3. **Check exclusions:** Make sure the component isn't in the `exclude` list, and that its file isn't matched by an `excludeFiles` glob.
 4. **Custom wrapper components:** The Babel plugin only instruments direct imports from `react-native`. If you wrap `Pressable` in a custom component, either:
    - Use `TrackedPressable` directly in your wrapper, or
    - Track events manually using `useInsightech`
+5. **Check provider placement:** Tracked components only record when they render inside `<InsightechProvider>` — see below.
+
+## `<InsightechProvider>` placement (no data on some screens)
+
+The Babel plugin instruments components app-wide, and every tracked component looks up the SDK from the nearest `<InsightechProvider>`. If a tracked component renders **outside** the provider's subtree, tracking is silently disabled **for that component only** — the app keeps running (the SDK fails open and never throws).
+
+In development (`__DEV__`) you'll see this warning once:
+
+```text
+[Insightech] A tracked component rendered outside <InsightechProvider>;
+tracking is disabled for it. Move <InsightechProvider> so it wraps your
+entire app (above your navigator/router).
+```
+
+**Fix:** mount `<InsightechProvider>` at the very top of your app — above your navigator/router (e.g. wrapping the root layout in `app/_layout.tsx` for Expo Router, or your `NavigationContainer`) — so every screen and component is a descendant. A correctly-placed provider never triggers this warning.
 
 ## High memory usage or battery drain
 
@@ -42,6 +57,23 @@ config={{
   maxQueueSize: 500,          // Smaller max queue
 }}
 ```
+
+:::note scrollInterval vs scrollEventThrottle
+`scrollInterval` (provider config) controls how often the SDK *records* a scroll snapshot. `scrollEventThrottle` is a standard per-component prop controlling how often the native layer delivers scroll events to JS. The tracked scroll wrappers default it to `16` (~60fps) only when you don't set it; **any value you pass is respected**. Scroll heatmaps are built from throttled position snapshots, so a higher `scrollEventThrottle` for performance has negligible visual impact.
+:::
+
+## Virtualized lists (FlatList / SectionList)
+
+Virtualized lists only render the rows currently near the viewport — off-screen rows are unmounted. This has two implications for capture, both expected:
+
+- **Replay reflects what was on screen.** A DOM-tree snapshot contains the rows mounted at capture time; rows far off-screen aren't in it. As the user scrolls, mutation events capture the rows that come and go, so the replay follows the scroll rather than showing the entire list at once.
+- **Row tracking stays correct and bounded.** As rows recycle, each remounted row gets a fresh node index, and tap/scroll tracking resolves elements **by `testID`** to their current index — so interactions map to the right row. The internal `testID → index` registry is **LRU-bounded** (`maxTestIdEntries`, default `5000`), so a long scrolling session won't leak memory; actively-visible elements are refreshed and never evicted.
+
+Recommendations for large lists:
+
+- Give rows a **stable `testID`** (and a stable `keyExtractor`) so recycled rows map back consistently.
+- Tune `windowSize` / `initialNumToRender` on the list if you want more rows captured per snapshot (at the cost of render work).
+- Raise `maxTestIdEntries` only if you have more than ~5,000 distinct interactive `testID`s alive at once (rare).
 
 ## Events lost when app is killed
 

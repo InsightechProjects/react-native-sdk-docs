@@ -102,7 +102,9 @@ import { TrackedPressable } from '@insightech/react-native';
 </TrackedPressable>
 ```
 
-Replaces `Pressable`, `TouchableOpacity`, and `TouchableHighlight`. Tracks tap events with position, element text, and CSS path.
+Replaces `Pressable`. Tracks tap events with position, element text, and CSS path.
+
+`TouchableOpacity` and `TouchableHighlight` are replaced by **`TrackedTouchableOpacity`** and **`TrackedTouchableHighlight`** respectively — faithful wrappers that track taps identically while preserving the native press feedback (opacity fade / underlay highlight).
 
 ### TrackedScrollView
 
